@@ -1,6 +1,14 @@
 # airgap-rag-lab — 폐쇄망(온프레미스) RAG + 에이전트 보안 랩
 
-> 뼈대만 있는 레포 — 아직 구현 전. 자리를 먼저 잡아 두고, 다음에 이어서 만든다.
+> **1·3단계 완료(2026-11-26)** — 로컬 LLM + 망분리 네트워크 실제로 돌려서 확인. 2·4·5단계는 아직.
+
+## 빠르게 써 보기
+
+```
+docker compose up -d --build
+docker compose run --rm app llm/client.py "질문"
+docker compose run --rm app llm/verify_airgap.py   # 로컬 LLM 동작 + 외부 접속 차단 둘 다 확인
+```
 
 ## 문제의식
 
@@ -18,9 +26,9 @@
 
 ## 계획 (뼈대만, 순서대로)
 
-- [ ] **1. 로컬 LLM**: Ollama 또는 llama.cpp로 외부 API 없이 추론 (후보: EXAONE, Qwen, Llama 3 계열 7~8B 양자화)
+- [x] **1. 로컬 LLM** — Docker로 Ollama + Qwen2.5 7B instruct(4.7GB). `llm/client.py`는 표준 라이브러리(`urllib`)만 써서 reservoir-rtu-lab의 로컬 LLM 작업 때 겪은 이 PC Python 3.15 네이티브 빌드 문제(pydantic-core 등)를 아예 피했다.
 - [ ] **2. RAG**: ChromaDB(벡터DB) + 로컬 임베딩 모델 + 문서 검색 → LLM 답변 생성
-- [ ] **3. 망분리 재현**: 모든 구성요소를 `internal: true` Docker 네트워크로 묶어 외부 호출이 물리적으로 불가능하게
+- [x] **3. 망분리 재현** — `docker-compose.yml`의 `airgap` 네트워크(`internal: true`)에 앱·Ollama를 묶었다. `llm/verify_airgap.py`로 **실제로** 확인: 로컬 LLM은 정상 응답하고(`1+1=2`), 외부 접속(8.8.8.8:443) 시도는 "Network is unreachable"로 **물리적으로 막혔다**(타임아웃이 아니라 경로 자체가 없음). "안 쓰면 된다"가 아니라 "쓸 수가 없다"는 걸 코드로 증명한 것.
 - [ ] **4. RAG 보안 위협 재현·방어**:
   - 검색 문서를 통한 프롬프트 인젝션 ("이전 지시를 무시하고…")
   - 권한 밖 문서가 검색 결과에 섞이는 문제(BOLA의 RAG 버전) — 문서별 접근 통제

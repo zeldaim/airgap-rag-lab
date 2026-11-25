@@ -1,0 +1,28 @@
+# 망분리 재현(계획 3단계) + 로컬 LLM(계획 1단계) — ollama 서비스는 호스트에 포트를 안 열고,
+# airgap 네트워크는 internal: true 라 이 네트워크에 붙은 컨테이너는 인터넷으로 아예 못 나간다(외부 호출 물리적 불가).
+#   docker compose up -d --build                 # ollama + app
+#   docker compose exec ollama ollama pull qwen2.5:7b-instruct   # 처음 한 번 (여기선 이미 받아 둔 볼륨 재사용)
+#   docker compose run --rm app python llm/client.py "질문"
+#   docker compose run --rm app python llm/verify_airgap.py      # 망분리 실제로 되는지 확인
+services:
+  ollama:
+    image: ollama/ollama
+    volumes: [ollama_models:/root/.ollama]
+    networks: [airgap]
+    # 포트를 호스트에 안 열었다 — airgap 네트워크 안에서만 닿는다
+
+  app:
+    build: .
+    networks: [airgap]
+    depends_on: [ollama]
+    environment:
+      OLLAMA_URL: http://ollama:11434
+    volumes: [./llm:/app/llm:ro]
+
+networks:
+  airgap:
+    internal: true   # 이게 핵심 — 이 네트워크엔 기본 게이트웨이가 없어 외부 접속이 물리적으로 안 된다
+
+volumes:
+  ollama_models:
+    external: true   # 이미 받아 둔 qwen2.5:7b-instruct 가 든 볼륨(ollama_models)을 그대로 재사용 (재다운로드 안 함)
