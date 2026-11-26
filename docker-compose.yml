@@ -17,12 +17,17 @@ services:
     depends_on: [ollama]
     environment:
       OLLAMA_URL: http://ollama:11434
-    volumes: [./llm:/app/llm:ro]
+    volumes:
+      - ./llm:/app/llm:ro
+      - ./rag:/app/rag:ro
+      - ./corpus:/app/corpus:ro
+      - chroma_data:/data   # ChromaDB 파일 (SQLite 라 bind mount 대신 named volume)
 
 networks:
   airgap:
     internal: true   # 이게 핵심 — 이 네트워크엔 기본 게이트웨이가 없어 외부 접속이 물리적으로 안 된다
 
 volumes:
+  chroma_data:
   ollama_models:
     external: true   # 이미 받아 둔 qwen2.5:7b-instruct 가 든 볼륨(ollama_models)을 그대로 재사용 (재다운로드 안 함)
