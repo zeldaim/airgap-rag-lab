@@ -1,0 +1,16 @@
+$ docker compose run --rm app rag/integrity.py build | verify | demo
+# 2026-11-26 14:54:05
+
+### integrity.py build
+매니페스트 기록: 파일 19개 · 인덱스 2개 · 모델 2개 → integrity/manifest.json
+
+### integrity.py verify
+무결성 OK — 매니페스트와 일치
+
+### integrity.py demo
+[기준] 변조 없음 → 일치
+[변조 1] 인덱스의 룰 100923 level 12→3: 검출
+[변조 2] 가짜 청크 추가: 검출
+[변조 3] 코퍼스 파일 끝에 공백 1바이트: 검출
+[변조 4] 문서는 그대로, 임베딩 벡터만 전부 교체: 검출 못 함 (알려진 한계 — 벡터는 해시하지 않는다)
+

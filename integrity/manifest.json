@@ -1,0 +1,37 @@
+{
+ "files": {
+  "corpus/0910-shadow_api_threats_v2.xml": "a868e345248efc689f6c6cd3304d59346749c11cb6db979f7d21e18f5c31162f",
+  "corpus/0911-bola_enumeration.xml": "22df6c5d15d3ad27e0a0583db68fe1fe584189ac15ef4a5bd0566f0f0f342a6f",
+  "corpus/0912-bola_ownership.xml": "083e34aafd6136906bff2d41757a96cb71d20cee2de36f62acaa1e6beeac81d6",
+  "corpus/0915-shadow_api_rules.xml": "a03dfc4cbca16d7599fcff705973537dc5470dffac8be29c41db3dfde3ee0a1d",
+  "corpus/0916-offspec_priority.xml": "0dfb9678709243abd50fe9f0d96d0aaa6ae2ff90823fa49764cfad3ec53a8bc3",
+  "corpus/T1046-nmap.md": "848fecca35f952b702928442bff351ee7fbb30dd4b47d8fd036c78f565b8cf31",
+  "corpus/T1110-ssh-bruteforce.md": "3c0f3993ac4bf20698265bf82eebfa15d821d34fa88bc988ccea1ed83f6e21f7",
+  "corpus/T1190-sqli.md": "c18d44830c5b058579423113077661db5979aa09a5cebbd519ef76606c6431b2",
+  "corpus/detection-gaps.md": "326e96709695ec029595345c84adae35baafe238a43a16084193293fd9e904c5",
+  "corpus_ml/dvra_ml_run2_README.md": "5db7f34e78e633e50e607d9517cd5595a7463ab2ad4549d9b98e76679f638637",
+  "corpus_ml/lab_ml-comparison.md": "0197fee5917e6414d559fd61d4ed89bab703f81a34540f0613f789bea2a00329",
+  "corpus_ml/lab_rate-limit.md": "7bf750b2839ec3459e3bd3bcfa85c56cc25d9fdf17c66a35acd9f56e7b1cc491",
+  "samples/alerts.jsonl": "e25481f880896007248c3be00faf579628565484a572db732ebf580a5a321aef",
+  "samples/fp_ml_events.jsonl": "82dcd67270b3cf6d85f1ae44be7387c8c8e2cff22aa08e62d9894ad93be82824",
+  "samples/fp_rule_alerts.jsonl": "7c65d03b22eadc05b978ae740fcd0d9114be340266e8c9143cd75998a89a581c",
+  "samples/lab_actor_results.jsonl": "b3dbfb8f6e2117725b89be2b9c4e882c1042b41bdd117172185a9649fe306f0e",
+  "samples/ml_triage_batch.jsonl": "71f6ba192ee06d2fe5d05cbc3903bd68e402e14e07c482367e57cfa3a895a2d5",
+  "samples/ml_triage_eval.jsonl": "7eb15222fbee1168da094c97adc648b7a6074a5408ff97c5d8438615e7adf14a",
+  "samples/triage_eval.jsonl": "50c067d6926f5369431267d19996e235cebe7b143f6993698f048617481cc78b"
+ },
+ "indexes": {
+  "ml_docs": {
+   "chunks": 20,
+   "root_sha256": "1f419576cc84c090b0d3c70e71a31638bd9050be489a919342a1e1ed37066b1a"
+  },
+  "wazuh_rules": {
+   "chunks": 116,
+   "root_sha256": "c48d3f1b389a082fbe0288aa5accfd0d518c5403c7038363c4bb2e14dd0565fc"
+  }
+ },
+ "models": {
+  "bge-m3:latest": "7907646426070047a77226ac3e684fbbe8410524f7b4a74d02837e43f2146bab",
+  "qwen2.5:7b-instruct": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e"
+ }
+}

@@ -32,3 +32,5 @@
 | `12_lab_actor_results.txt` | 방어연습장 라벨 있는 결과 | 정상 135명 중 111명을 ML이 high로 판정, 룰 경보를 받은 정상 0명 |
 | `13_triage_ml_eval.txt` | ML 이벤트 트리아지 A/B (13건) | LLM이 13건 중 11건 "보류" — 사실을 줘도 정상 10건을 한 번도 "오탐 가능"으로 못 냄. Ollama 500 으로 두 번에 나눠 실행 |
 | `14_security_eval.txt` | RAG 보안 시험 1차 | 가짜 시스템 메시지 인젝션 3/3 성공(사실 블록 있어도), 근거 없는 질문 6/6 거부 |
+| `15_supply_chain.txt` | 공급망 점검(SBOM·취약점·서명·검증) | SBOM 179개 구성요소, 취약점 235건(chromadb Critical 2건·수정 없음), 서명 파일 8개 검증 OK |
+| `16_integrity.txt` | 무결성 매니페스트 build · verify · demo | 문서 변조·청크 추가·파일 변조 검출, 벡터만 바꾸는 변조는 검출 못 함(한계) |
