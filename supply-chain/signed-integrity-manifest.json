@@ -12,6 +12,7 @@
   "corpus_ml/dvra_ml_run2_README.md": "5db7f34e78e633e50e607d9517cd5595a7463ab2ad4549d9b98e76679f638637",
   "corpus_ml/lab_ml-comparison.md": "0197fee5917e6414d559fd61d4ed89bab703f81a34540f0613f789bea2a00329",
   "corpus_ml/lab_rate-limit.md": "7bf750b2839ec3459e3bd3bcfa85c56cc25d9fdf17c66a35acd9f56e7b1cc491",
+  "samples/acl_docs.jsonl": "43d0f58c0f21eb065a3c9563bb567349aac2bae4eb91b9cb6ef127fce9e91eb0",
   "samples/alerts.jsonl": "e25481f880896007248c3be00faf579628565484a572db732ebf580a5a321aef",
   "samples/fp_ml_events.jsonl": "82dcd67270b3cf6d85f1ae44be7387c8c8e2cff22aa08e62d9894ad93be82824",
   "samples/fp_rule_alerts.jsonl": "7c65d03b22eadc05b978ae740fcd0d9114be340266e8c9143cd75998a89a581c",

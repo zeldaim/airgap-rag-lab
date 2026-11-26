@@ -1,5 +1,5 @@
 $ bash supply-chain/run.sh airgap-rag-lab-app:latest
-# 2026-11-26 14:43:59
+# 2026-11-26 15:00:20
 
 [SBOM] airgap-rag-lab-app:latest
 [취약점] airgap-rag-lab-app:latest

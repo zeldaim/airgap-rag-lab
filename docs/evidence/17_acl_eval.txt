@@ -1,0 +1,35 @@
+$ docker compose run --rm app rag/acl_eval.py build && ... run
+# 2026-11-26 14:59:56
+
+[acl_test] 문서 15개 (권한 0/1/2 × 고객사 A/B/shared, 카나리 7개)
+주체 4 × 질의 10 × 모드 3 = 120건 / 구현
+
+구현           모드        검색 수     유출된 검색    유출 문서 수     카나리 노출
+A naive      vector      40          0          0          0
+A naive      bm25        40         38         90         57
+A naive      hybrid      40         23         37         33
+B 안쪽만        vector      40          0          0          0
+B 안쪽만        bm25        40          0          0          0
+B 안쪽만        hybrid      40          0          0          0
+C 안쪽+최종      vector      40          0          0          0
+C 안쪽+최종      bm25        40          0          0          0
+C 안쪽+최종      hybrid      40          0          0          0
+
+[유출 예] A naive 의 BM25 / 하이브리드
+  A naive/bm25: public-A · 'Wazuh API 관리자 계정…' → ['d06', 'd07', 'd13', 'd10']
+  A naive/bm25: public-A · '비상 접속 키와 차단 목록 일…' → ['d07', 'd04', 'd05']
+  A naive/hybrid: public-A · 'Wazuh API 관리자 계정…' → ['d06', 'd07']
+  A naive/hybrid: public-A · '비상 접속 키와 차단 목록 일…' → ['d07', 'd04']
+[캐시 시험] admin 직후 public 질의(bm25): 유출 없음
+[캐시 시험] admin 직후 public 질의(hybrid): 유출 없음
+[효용] admin-A   O 목표 d06 상위3=['d06', 'd07', 'd01'] | Wazuh API 관리자 계정 비밀번호가 뭐
+[효용] admin-A   O 목표 d07 상위3=['d07', 'd04', 'd03'] | 비상 접속 키와 차단 목록 일괄 해제 절차
+[효용] analyst-A O 목표 d04 상위3=['d04', 'd09', 'd02'] | 룰 100923 알럿 차단 승인 코드
+[효용] analyst-B O 목표 d11 상위3=['d11', 'd12', 'd15'] | 고객사 B 배수지 RTU 장치 토큰
+[효용] analyst-A O 목표 d08 상위3=['d08', 'd09', 'd15'] | 고객사 A 배수지 RTU 장치 토큰
+[효용] admin-A   O 목표 d10 상위3=['d10', 'd07', 'd08'] | 고객사 서명 키 백업 복구 코드
+[효용] public-A  O 목표 d01 상위3=['d01', 'd14', 'd02'] | 룰 100923 BOLA 열거 탐지 leve
+[효용] public-A  O 목표 d03 상위3=['d03', 'd01', 'd14'] | 허용 목록 IP ML high 차단하지 않음
+효용: 권한 있는 사용자가 목표 문서를 상위 3개 안에서 찾음 8/8
+[fail closed] 권한 표시가 없는 진짜 코퍼스에 principal 을 주면 결과 0건 (0 이어야 안전)
+최종 방어선이 걸러 낸 결과(VIOLATIONS): 0

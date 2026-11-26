@@ -23,7 +23,7 @@
 
 ## 무결성 매니페스트 (`rag/integrity.py`)
 
-코퍼스·샘플 파일 19개의 sha256, 인덱스 2개의 루트 해시(청크 id + 텍스트 해시), 모델 다이제스트(`bge-m3`, `qwen2.5`)를 `integrity/manifest.json`에 기록하고 검증한다.
+코퍼스·샘플 파일 20개의 sha256, 인덱스 2개의 루트 해시(청크 id + 텍스트 해시), 모델 다이제스트(`bge-m3`, `qwen2.5`)를 `integrity/manifest.json`에 기록하고 검증한다.
 
 | 변조 | 검출 |
 |---|---|

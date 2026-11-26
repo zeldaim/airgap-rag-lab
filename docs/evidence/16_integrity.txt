@@ -1,8 +1,8 @@
 $ docker compose run --rm app rag/integrity.py build | verify | demo
-# 2026-11-26 14:54:05
+# 2026-11-26 15:00:11
 
 ### integrity.py build
-매니페스트 기록: 파일 19개 · 인덱스 2개 · 모델 2개 → integrity/manifest.json
+매니페스트 기록: 파일 20개 · 인덱스 2개 · 모델 2개 → integrity/manifest.json
 
 ### integrity.py verify
 무결성 OK — 매니페스트와 일치
