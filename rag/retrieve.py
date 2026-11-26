@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 from embed import embed  # noqa: E402
-from store import collection  # noqa: E402
+from store import COLLECTION, collection  # noqa: E402
 
 RRF_K = 60
 POOL = 20  # 각 검색기가 합치기 전에 내놓는 후보 수
@@ -49,41 +49,42 @@ class BM25:
         return out
 
 
-_bm25_cache: dict = {}
+_bm25_cache: dict = {}   # 컬렉션 이름 → {n, idx, by_id}
 
 
-def _bm25() -> tuple[BM25, dict]:
-    col = collection()
+def _bm25(name: str = COLLECTION) -> tuple[BM25, dict]:
+    col = collection(name=name)
     n = col.count()
-    if _bm25_cache.get("n") != n:
+    c = _bm25_cache.get(name)
+    if not c or c["n"] != n:
         r = col.get()
-        _bm25_cache.update(n=n, idx=BM25(r["ids"], r["documents"]),
-                           by_id={i: (d, m) for i, d, m in zip(r["ids"], r["documents"], r["metadatas"])})
-    return _bm25_cache["idx"], _bm25_cache["by_id"]
+        c = _bm25_cache[name] = {"n": n, "idx": BM25(r["ids"], r["documents"]),
+                                 "by_id": {i: (d, m) for i, d, m in zip(r["ids"], r["documents"], r["metadatas"])}}
+    return c["idx"], c["by_id"]
 
 
-def _vector(query: str, n: int) -> list[str]:
+def _vector(query: str, n: int, name: str = COLLECTION) -> list[str]:
     qv = embed([query])[0]
-    return collection().query(query_embeddings=[qv], n_results=n)["ids"][0]
+    return collection(name=name).query(query_embeddings=[qv], n_results=n)["ids"][0]
 
 
-def _keyword(query: str, n: int) -> list[str]:
-    idx, _ = _bm25()
+def _keyword(query: str, n: int, name: str = COLLECTION) -> list[str]:
+    idx, _ = _bm25(name)
     sc = idx.scores(query)
     order = sorted(range(len(sc)), key=lambda i: -sc[i])
     return [idx.ids[i] for i in order[:n] if sc[i] > 0]
 
 
-def search(query: str, k: int = 5, mode: str = "hybrid") -> list[dict]:
+def search(query: str, k: int = 5, mode: str = "hybrid", name: str = COLLECTION) -> list[dict]:
     if mode == "vector":
-        ranked = _vector(query, k)
+        ranked = _vector(query, k, name)
     elif mode == "bm25":
-        ranked = _keyword(query, k)
+        ranked = _keyword(query, k, name)
     else:
         fused: Counter = Counter()
-        for lst in (_vector(query, POOL), _keyword(query, POOL)):
+        for lst in (_vector(query, POOL, name), _keyword(query, POOL, name)):
             for rank, cid in enumerate(lst):
                 fused[cid] += 1 / (RRF_K + rank + 1)
         ranked = [cid for cid, _ in fused.most_common(k)]
-    _, by_id = _bm25()
+    _, by_id = _bm25(name)
     return [{"id": cid, "text": by_id[cid][0], "meta": by_id[cid][1]} for cid in ranked]

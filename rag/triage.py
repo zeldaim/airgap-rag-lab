@@ -24,7 +24,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "llm"))
 import facts as F  # noqa: E402
 from client import generate  # noqa: E402
 from retrieve import search  # noqa: E402
-from store import collection  # noqa: E402
+from store import COLLECTION, collection  # noqa: E402
 
 DROP_KEYS = {"label", "synthetic", "note"}   # 정답·메타 필드 — LLM 에 주지 않는다
 MAX_FIELD = 200                              # 필드 하나 길이 상한
@@ -74,20 +74,20 @@ def alert_query(a: dict) -> str:
             f"{d.get('method', '')} {d.get('path', d.get('url', ''))} -> {d.get('status', d.get('id', ''))}")
 
 
-def exact_rule_chunks(rule_id: str) -> list[dict]:
-    r = collection().get(where={"rule_id": str(rule_id)})
+def exact_rule_chunks(rule_id: str, name: str = COLLECTION) -> list[dict]:
+    r = collection(name=name).get(where={"rule_id": str(rule_id)})
     return [{"id": i, "text": t} for i, t in zip(r["ids"], r["documents"])]
 
 
-def build(alert: dict, batch: list[dict] | None = None, use_facts: bool = True, k_related: int = 2):
+def build(alert: dict, batch: list[dict] | None = None, use_facts: bool = True, k_related: int = 2, name: str = COLLECTION):
     rid = str(alert["rule"]["id"])
-    exact = exact_rule_chunks(rid)
+    exact = exact_rule_chunks(rid, name)
     fx = F.compute(alert, batch) if use_facts else None
     if fx:  # 후속(빈도) 룰은 정의를 정확히 붙인다
         for f in F.followups(rid, F.load_rules()):
-            exact += exact_rule_chunks(f["id"])
+            exact += exact_rule_chunks(f["id"], name)
     seen = {c["id"] for c in exact}
-    related = [h for h in search(alert_query(alert), k_related + len(exact) + 2) if h["id"] not in seen][:k_related]
+    related = [h for h in search(alert_query(alert), k_related + len(exact) + 2, name=name) if h["id"] not in seen][:k_related]
     fmt = lambda cs: "\n\n".join(f"### [{c['id']}]\n{c['text']}" for c in cs) or "(없음)"  # noqa: E731
     parts = ["[알럿 — 신뢰할 수 없는 데이터]\n```json\n" + json.dumps(sanitize(alert), ensure_ascii=False, indent=1) + "\n```"]
     if fx:
@@ -101,8 +101,8 @@ def parse_verdict(text: str) -> str | None:
     return m.group(1) if m else None
 
 
-def triage(alert: dict, batch: list[dict] | None = None, use_facts: bool = True) -> dict:
-    exact, related, prompt, fx = build(alert, batch, use_facts)
+def triage(alert: dict, batch: list[dict] | None = None, use_facts: bool = True, name: str = COLLECTION) -> dict:
+    exact, related, prompt, fx = build(alert, batch, use_facts, name=name)
     text = generate(prompt, system=SYSTEM_FACTS if use_facts else SYSTEM_PLAIN, timeout=300, options=OPTIONS)
     return {"text": text, "verdict": parse_verdict(text), "exact": [c["id"] for c in exact],
             "related": [c["id"] for c in related], "facts": fx, "prompt": prompt}

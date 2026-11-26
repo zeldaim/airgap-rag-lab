@@ -21,6 +21,7 @@ services:
       - ./llm:/app/llm:ro
       - ./rag:/app/rag:ro
       - ./corpus:/app/corpus:ro
+      - ./corpus_ml:/app/corpus_ml:ro
       - ./samples:/app/samples:ro
       - chroma_data:/data   # ChromaDB 파일 (SQLite 라 bind mount 대신 named volume)
 

@@ -7,6 +7,7 @@ reservoir-rtu-lab 의 app/report.py 에 쓴 것과 같은 패턴(코드는 새�
 import json
 import os
 import sys
+import time
 import urllib.error
 import urllib.request
 
@@ -22,11 +23,18 @@ def generate(prompt: str, system: str | None = None, base_url: str | None = None
     body = json.dumps(payload).encode()
     req = urllib.request.Request(base_url.rstrip("/") + "/api/chat", data=body,
                                  headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
-    try:
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            resp = json.loads(r.read())
-    except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
-        raise RuntimeError(f"로컬 LLM({base_url}) 연결 실패 — Ollama 가 안 떠 있거나 모델이 없을 수 있음: {e}") from e
+    for attempt in range(4):   # 모델 교체 중 메모리가 빠듯하면 Ollama 가 잠깐 500 을 낸다 — 5xx 만 재시도
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                resp = json.loads(r.read())
+            break
+        except urllib.error.HTTPError as e:
+            if e.code >= 500 and attempt < 3:
+                time.sleep(15)
+                continue
+            raise RuntimeError(f"로컬 LLM({base_url}) 오류 HTTP {e.code}: {e}") from e
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as e:
+            raise RuntimeError(f"로컬 LLM({base_url}) 연결 실패 — Ollama 가 안 떠 있거나 모델이 없을 수 있음: {e}") from e
     return resp.get("message", {}).get("content", "")
 
 

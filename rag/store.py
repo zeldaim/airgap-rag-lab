@@ -11,11 +11,11 @@ DB_DIR = os.environ.get("CHROMA_DIR", "/data/chroma")
 COLLECTION = "wazuh_rules"
 
 
-def collection(reset: bool = False):
+def collection(reset: bool = False, name: str = COLLECTION):
     client = chromadb.PersistentClient(path=DB_DIR)
     if reset:
         try:
-            client.delete_collection(COLLECTION)
+            client.delete_collection(name)
         except Exception:
             pass
-    return client.get_or_create_collection(COLLECTION, metadata={"hnsw:space": "cosine"})
+    return client.get_or_create_collection(name, metadata={"hnsw:space": "cosine"})

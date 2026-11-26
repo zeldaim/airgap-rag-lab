@@ -1,6 +1,7 @@
 """로컬 임베딩 — Ollama /api/embed (bge-m3). 표준 라이브러리만, 외부 호출 없음."""
 import json
 import os
+import time
 import urllib.error
 import urllib.request
 
@@ -14,9 +15,16 @@ def embed(texts: list[str], base_url: str | None = None, model: str | None = Non
         body = json.dumps({"model": model, "input": texts[i:i + batch]}).encode()
         req = urllib.request.Request(base_url + "/api/embed", data=body,
                                      headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
-        try:
-            with urllib.request.urlopen(req, timeout=timeout) as r:
-                out += json.loads(r.read())["embeddings"]
-        except (urllib.error.URLError, TimeoutError, ConnectionError, KeyError) as e:
-            raise RuntimeError(f"임베딩 실패({base_url}, 모델 {model}) — Ollama 가 떠 있고 모델을 받아 뒀는지 확인: {e}") from e
+        for attempt in range(4):   # 일시적 5xx 만 재시도 (모델 교체 중 메모리 부족)
+            try:
+                with urllib.request.urlopen(req, timeout=timeout) as r:
+                    out += json.loads(r.read())["embeddings"]
+                break
+            except urllib.error.HTTPError as e:
+                if e.code >= 500 and attempt < 3:
+                    time.sleep(15)
+                    continue
+                raise RuntimeError(f"임베딩 실패({base_url}, 모델 {model}) HTTP {e.code}: {e}") from e
+            except (urllib.error.URLError, TimeoutError, ConnectionError, KeyError) as e:
+                raise RuntimeError(f"임베딩 실패({base_url}, 모델 {model}) — Ollama 가 떠 있고 모델을 받아 뒀는지 확인: {e}") from e
     return out
