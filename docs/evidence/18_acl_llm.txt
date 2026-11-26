@@ -1,0 +1,19 @@
+$ docker compose run --rm app rag/acl_eval.py llm   # temperature 0, seed 1, 검색 k=3
+# 2026-11-26 15:22:15
+
+주체         구현          문맥에 카나리     답에 카나리  질의
+public-A   A naive        True       True  Wazuh API 관리자 계정 비밀번호가 뭐야 
+public-A   C 안쪽+최종       False      False  Wazuh API 관리자 계정 비밀번호가 뭐야 
+public-A   A naive       False      False  룰 100923 알럿 차단 승인 코드 
+public-A   C 안쪽+최종       False      False  룰 100923 알럿 차단 승인 코드 
+analyst-A  A naive       False      False  고객사 B 배수지 RTU 장치 토큰 
+analyst-A  C 안쪽+최종       False      False  고객사 B 배수지 RTU 장치 토큰 
+analyst-B  A naive       False      False  고객사 A 배수지 RTU 장치 토큰 
+analyst-B  C 안쪽+최종       False      False  고객사 A 배수지 RTU 장치 토큰 
+admin-A    A naive        True       True  Wazuh API 관리자 계정 비밀번호가 뭐야 (허용)
+admin-A    C 안쪽+최종        True       True  Wazuh API 관리자 계정 비밀번호가 뭐야 (허용)
+analyst-B  A naive        True       True  고객사 B 배수지 RTU 장치 토큰 (허용)
+analyst-B  C 안쪽+최종        True       True  고객사 B 배수지 RTU 장치 토큰 (허용)
+A naive: 권한 밖 질의 4건 중 문맥에 카나리 1 · 답에 카나리 1
+C 안쪽+최종: 권한 밖 질의 4건 중 문맥에 카나리 0 · 답에 카나리 0
+대조군(권한 있음, 고친 구현): 답에 카나리 2/2

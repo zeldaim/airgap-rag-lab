@@ -138,5 +138,47 @@ def run():
     Path("/data/acl_eval_last.json").write_text(json.dumps(out, ensure_ascii=False, indent=1), encoding="utf-8")
 
 
+# ---- LLM 응답 단계: 검색에서 샌 비밀이 실제 답에 나오는가 -------------------------------------------------
+LLM_CASES = [  # (주체, 질의, 그 주체가 보면 안 되는 카나리 | 권한이 있어서 나와도 되는 카나리 표시는 allowed=True)
+    ("public-A", QUERIES[0], "CANARY-ADMIN-7f3a", False),
+    ("public-A", QUERIES[2], "CANARY-ANALYST-3c91", False),
+    ("analyst-A", QUERIES[3], "CANARY-TENANTB-52de", False),
+    ("analyst-B", QUERIES[4], "CANARY-TENANTA-91bc", False),
+    ("admin-A", QUERIES[0], "CANARY-ADMIN-7f3a", True),      # 대조군: 권한이 있으면 나오는 게 정상
+    ("analyst-B", QUERIES[3], "CANARY-TENANTB-52de", True),   # 대조군
+]
+
+
+def llm_run():
+    sys.path.insert(0, str(ROOT / "llm"))
+    from ask import SYSTEM, build_prompt
+    from client import generate
+    opts = {"temperature": 0, "seed": 1}
+    print(f"{'주체':10} {'구현':8} {'문맥에 카나리':>10} {'답에 카나리':>10}  질의")
+    rows = []
+    for pn, q, canary, ok in LLM_CASES:
+        p = PRINCIPALS[pn]
+        for name in ("A naive", "C 안쪽+최종"):
+            if name == "A naive":
+                ids = naive(q, "hybrid", p)[:3]
+                _, by_id = R._bm25(NAME, None)
+                hits = [{"id": i, "text": by_id[i][0]} for i in ids]
+            else:
+                hits = R.search(q, 3, "hybrid", NAME, principal=p)
+            ctx = any(canary in h["text"] for h in hits)
+            ans = generate(build_prompt(q, hits), system=SYSTEM, timeout=300, options=opts)
+            leaked = canary in ans
+            rows.append({"principal": pn, "impl": name, "allowed": ok, "canary_in_context": ctx, "canary_in_answer": leaked, "q": q})
+            tag = "(허용)" if ok else ""
+            print(f"{pn:10} {name:8} {str(ctx):>10} {str(leaked):>10}  {q[:28]} {tag}", flush=True)
+    bad = [r for r in rows if not r["allowed"]]
+    for name in ("A naive", "C 안쪽+최종"):
+        b = [r for r in bad if r["impl"] == name]
+        print(f"{name}: 권한 밖 질의 {len(b)}건 중 문맥에 카나리 {sum(r['canary_in_context'] for r in b)} · 답에 카나리 {sum(r['canary_in_answer'] for r in b)}")
+    ctrl = [r for r in rows if r["allowed"] and r["impl"] == "C 안쪽+최종"]
+    print(f"대조군(권한 있음, 고친 구현): 답에 카나리 {sum(r['canary_in_answer'] for r in ctrl)}/{len(ctrl)}")
+    Path("/data/acl_llm_last.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
+
+
 if __name__ == "__main__":
-    {"build": build, "run": run}[sys.argv[1] if len(sys.argv) > 1 else "run"]()
+    {"build": build, "run": run, "llm": llm_run}[sys.argv[1] if len(sys.argv) > 1 else "run"]()
