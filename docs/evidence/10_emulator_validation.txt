@@ -1,0 +1,10 @@
+$ python tools/validate_emulator.py D:/api-security-supply-chain
+# 2026-11-26 11:04:35
+
+룰 13개 로드 (빈도 룰 2개는 건너뜀)
+OK   lt_normal.log      재현 {'none': 353, 'L3': 2}  | 실제 logtest {'L3': 2, 'none': 353}
+OK   lt_bola.log        재현 {'none': 63}  | 실제 logtest {'none': 63}
+OK   lt_probe.log       재현 {'L3': 2, 'L2': 1, 'L1': 11, 'OTHER': 1}  | 실제 logtest {'L1': 11, 'L2': 1, 'L3': 2, 'OTHER': 1}
+OK   lt_probe_all.log   재현 {'none': 2, 'L3': 2, 'L2': 1, 'L1': 11, 'OTHER': 1}  | 실제 logtest {'L1': 11, 'L2': 1, 'L3': 2, 'OTHER': 1, 'none': 2}
+
+전부 일치
