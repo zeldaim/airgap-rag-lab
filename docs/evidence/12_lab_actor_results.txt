@@ -1,0 +1,15 @@
+$ python tools/collect_lab_results.py D:/api-defense-lab samples/lab_actor_results.jsonl
+# 2026-11-26 11:18:40
+
+score.json 7개 → 고유 행위자 145명 (정상 135 · 공격 10)
+정상 중 탐지·차단됨(fp) 111명 (82%) | 룰 경보를 받은 정상 0명 | 차단된 정상 0명
+fp 의 탐지 수단: {('ML',): 111}
+  honey-api_2026-11-25/score.json                  정상  15  fp  11
+  rate-limit_2026-11-22/A_baseline_score.json      정상  20  fp  17
+  rate-limit_2026-11-22/B_ratelimit_score.json     정상  20  fp  19
+  rate-limit_2026-11-22/C_rl_detect_score.json     정상  20  fp  19
+  rate-limit_2026-11-22/D_slow_rl_score.json       정상  20  fp  20
+  rate-limit_2026-11-22/E_slow_rl_detect_score.json 정상  20  fp  19
+  reports/score.json                               정상  20  fp   6
+fp 행위자의 요청 수: 중앙값 95 · 최대 107
+공격 행위자: [('agent', 'tp', ['룰']), ('agent', 'tp', ['ML', '룰']), ('probe', 'tp', ['ML', '룰']), ('bola', 'tp', ['ML']), ('probe', 'tp', ['ML', '룰']), ('bola', 'tp', ['ML']), ('probe', 'tp', ['ML', '룰']), ('bola', 'tp', ['ML']), ('bola', 'tp', ['ML']), ('bola', 'tp', ['ML'])]
