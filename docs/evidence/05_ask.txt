@@ -1,0 +1,6 @@
+$ docker compose run --rm app rag/ask.py -k 3 같은 IP가 120초 안에 서로 다른 객체 ID 10개를 성공적으로 조회하면 어떤 룰이 울리고 레벨은 몇이야?
+# 2026-11-26 10:27:00  commit 262536e
+
+검색된 청크: 0911-bola_enumeration::100923, 0911-bola_enumeration::100924, 0912-bola_ownership::100931 
+
+同样的IP在120秒内成功查询了10个不同的对象将触发规则100923，其级别为12。[文件::0911-bola_enumeration::100923]

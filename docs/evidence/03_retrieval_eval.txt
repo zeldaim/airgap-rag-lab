@@ -1,0 +1,81 @@
+$ docker compose run --rm app rag/eval.py -v
+# 2026-11-26 10:26:55  commit 262536e
+
+방식       구분     n R@1   R@3   R@5    MRR
+vector   전체    22 13/22 16/22 18/22  0.674
+vector   일반    14 12/14 13/14 14/14  0.911
+vector   틀      8  1/8   3/8   4/8   0.260
+bm25     전체    22  9/22 21/22 21/22  0.636
+bm25     일반    14  7/14 13/14 13/14  0.667
+bm25     틀      8  2/8   8/8   8/8   0.583
+hybrid   전체    22 13/22 18/22 21/22  0.723
+hybrid   일반    14 12/14 13/14 14/14  0.911
+hybrid   틀      8  1/8   5/8   7/8   0.396
+
+[vector] 1위가 아닌 질문
+  rank=4 [일반] diagnostics/ping 같은 우선순위 높은 명세 밖 호출이 L3 단계면 레벨이 몇이야?
+      정답 ['0916-offspec_priority::100602'] / 상위 ['0916-offspec_priority::header', '0916-offspec_priority::100600', '0916-offspec_priority::100603']
+  rank=2 [일반] Which Wazuh rule detects BOLA object ID enumeration?
+      정답 ['0911-bola_enumeration'] / 상위 ['0912-bola_ownership::header', '0911-bola_enumeration::100921', '0911-bola_enumeration::header']
+  rank=- [틀] HEAD /api/v1/users 를 L3 로 잡는 룰은 몇 번이고 레벨은?
+      정답 ['0916-offspec_priority::100642'] / 상위 ['0916-offspec_priority::100640', '0916-offspec_priority::100620', '0916-offspec_priority::100644']
+  rank=2 [틀] OPTIONS /api/v1/register 의 L2 단계 룰 레벨은?
+      정답 ['0916-offspec_priority::100653'] / 상위 ['0916-offspec_priority::100652', '0916-offspec_priority::100653', '0916-offspec_priority::100656']
+  rank=4 [틀] POST /api/v1/register 가 서버 오류(L3E)일 때 룰은?
+      정답 ['0916-offspec_priority::100659'] / 상위 ['0915-shadow_api_rules::100513', '0916-offspec_priority::100656', '0916-offspec_priority::100652']
+  rank=- [틀] GET /api/v2/login.php L3 룰은?
+      정답 ['0916-offspec_priority::100626'] / 상위 ['0916-offspec_priority::100624', '0916-offspec_priority::100628', '0915-shadow_api_rules::100512']
+  rank=3 [틀] 우선순위 높음인 GET /api/v1/users/{id} 의 L2 룰은?
+      정답 ['0916-offspec_priority::100605'] / 상위 ['0916-offspec_priority::100604', '0916-offspec_priority::100620', '0916-offspec_priority::100605']
+  rank=- [틀] HEAD /api/v1/login 의 L3 룰 id는?
+      정답 ['0916-offspec_priority::100634'] / 상위 ['0916-offspec_priority::100632', '0916-offspec_priority::100644', '0916-offspec_priority::100640']
+  rank=- [틀] GET /api/jsonws/index.jsp 의 L3 룰은 몇 번이야?
+      정답 ['0916-offspec_priority::100614'] / 상위 ['0916-offspec_priority::100612', '0915-shadow_api_rules::100521', '0916-offspec_priority::100608']
+
+[bm25] 1위가 아닌 질문
+  rank=2 [일반] BOLA 열거 시도가 401/403으로 막힌 경우는 어떤 룰이 잡아?
+      정답 ['0911-bola_enumeration::100924'] / 상위 ['0911-bola_enumeration::header', '0911-bola_enumeration::100924', '0911-bola_enumeration::100922']
+  rank=2 [일반] 로그인한 사용자와 경로의 객체 소유자가 다른데 조회에 성공하면 잡는 룰은?
+      정답 ['0912-bola_ownership::100930'] / 상위 ['0912-bola_ownership::header', '0912-bola_ownership::100930', '0911-bola_enumeration::header']
+  rank=3 [일반] 명세에 없는 DELETE 호출은 어떤 룰이 판정해?
+      정답 ['0915-shadow_api_rules::100502'] / 상위 ['0915-shadow_api_rules::100501', '0916-offspec_priority::header', '0915-shadow_api_rules::100502']
+  rank=- [일반] diagnostics/ping 같은 우선순위 높은 명세 밖 호출이 L3 단계면 레벨이 몇이야?
+      정답 ['0916-offspec_priority::100602'] / 상위 ['0916-offspec_priority::header', '0915-shadow_api_rules::100510', '0915-shadow_api_rules::100501']
+  rank=3 [일반] Which Wazuh rule detects BOLA object ID enumeration?
+      정답 ['0911-bola_enumeration'] / 상위 ['T1110-ssh-bruteforce::s3', 'T1046-nmap::s3', '0911-bola_enumeration::100921']
+  rank=3 [일반] SSH 무차별 대입을 60초 5회 실패로 잡는 룰과 대응은?
+      정답 ['T1110-ssh-bruteforce'] / 상위 ['0915-shadow_api_rules::100521', '0916-offspec_priority::100661', 'T1110-ssh-bruteforce::s3']
+  rank=3 [일반] SQL 인젝션 공격은 어떻게 탐지했어?
+      정답 ['T1190-sqli'] / 상위 ['0910-shadow_api_threats_v2::100910', '0910-shadow_api_threats_v2::100912', 'T1190-sqli::s1']
+  rank=3 [틀] HEAD /api/v1/users 를 L3 로 잡는 룰은 몇 번이고 레벨은?
+      정답 ['0916-offspec_priority::100642'] / 상위 ['0912-bola_ownership::header', '0916-offspec_priority::header', '0916-offspec_priority::100642']
+  rank=2 [틀] OPTIONS /api/v1/register 의 L2 단계 룰 레벨은?
+      정답 ['0916-offspec_priority::100653'] / 상위 ['0916-offspec_priority::header', '0916-offspec_priority::100653', '0916-offspec_priority::100652']
+  rank=3 [틀] POST /api/v1/register 가 서버 오류(L3E)일 때 룰은?
+      정답 ['0916-offspec_priority::100659'] / 상위 ['0915-shadow_api_rules::100513', '0915-shadow_api_rules::header', '0916-offspec_priority::100659']
+  rank=2 [틀] GET /api/v2/login.php L3 룰은?
+      정답 ['0916-offspec_priority::100626'] / 상위 ['0916-offspec_priority::100624', '0916-offspec_priority::100626', '0916-offspec_priority::100625']
+  rank=2 [틀] 우선순위 높음인 GET /api/v1/users/{id} 의 L2 룰은?
+      정답 ['0916-offspec_priority::100605'] / 상위 ['0916-offspec_priority::100604', '0916-offspec_priority::100605', '0916-offspec_priority::100607']
+  rank=2 [틀] GET /api/jsonws/index.jsp 의 L3 룰은 몇 번이야?
+      정답 ['0916-offspec_priority::100614'] / 상위 ['0916-offspec_priority::100612', '0916-offspec_priority::100614', '0916-offspec_priority::100613']
+
+[hybrid] 1위가 아닌 질문
+  rank=2 [일반] 명세에 없는 DELETE 호출은 어떤 룰이 판정해?
+      정답 ['0915-shadow_api_rules::100502'] / 상위 ['0915-shadow_api_rules::100501', '0915-shadow_api_rules::100502', '0916-offspec_priority::header']
+  rank=4 [일반] diagnostics/ping 같은 우선순위 높은 명세 밖 호출이 L3 단계면 레벨이 몇이야?
+      정답 ['0916-offspec_priority::100602'] / 상위 ['0916-offspec_priority::header', '0915-shadow_api_rules::100510', '0916-offspec_priority::100600']
+  rank=4 [틀] HEAD /api/v1/users 를 L3 로 잡는 룰은 몇 번이고 레벨은?
+      정답 ['0916-offspec_priority::100642'] / 상위 ['0916-offspec_priority::100640', '0916-offspec_priority::100632', '0916-offspec_priority::100636']
+  rank=2 [틀] OPTIONS /api/v1/register 의 L2 단계 룰 레벨은?
+      정답 ['0916-offspec_priority::100653'] / 상위 ['0916-offspec_priority::100652', '0916-offspec_priority::100653', '0916-offspec_priority::100656']
+  rank=3 [틀] POST /api/v1/register 가 서버 오류(L3E)일 때 룰은?
+      정답 ['0916-offspec_priority::100659'] / 상위 ['0915-shadow_api_rules::100513', '0916-offspec_priority::100656', '0916-offspec_priority::100659']
+  rank=4 [틀] GET /api/v2/login.php L3 룰은?
+      정답 ['0916-offspec_priority::100626'] / 상위 ['0916-offspec_priority::100624', '0916-offspec_priority::100628', '0916-offspec_priority::100644']
+  rank=2 [틀] 우선순위 높음인 GET /api/v1/users/{id} 의 L2 룰은?
+      정답 ['0916-offspec_priority::100605'] / 상위 ['0916-offspec_priority::100604', '0916-offspec_priority::100605', '0916-offspec_priority::100606']
+  rank=- [틀] HEAD /api/v1/login 의 L3 룰 id는?
+      정답 ['0916-offspec_priority::100634'] / 상위 ['0916-offspec_priority::100632', '0916-offspec_priority::100644', '0916-offspec_priority::100640']
+  rank=3 [틀] GET /api/jsonws/index.jsp 의 L3 룰은 몇 번이야?
+      정답 ['0916-offspec_priority::100614'] / 상위 ['0916-offspec_priority::100612', '0916-offspec_priority::100608', '0916-offspec_priority::100614']

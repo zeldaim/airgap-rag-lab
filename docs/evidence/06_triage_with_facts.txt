@@ -1,0 +1,91 @@
+$ docker compose run --rm app rag/triage.py samples/triage_eval.jsonl -n 0 --show-prompt
+# 2026-11-26 10:27:21  commit 262536e
+
+룰 정의 청크 : ['0915-shadow_api_rules::100512', '0915-shadow_api_rules::100521']
+관련 룰 청크 : ['0916-offspec_priority::100610', '0916-offspec_priority::100630']
+코드 판정 단서: 의심
+
+----- PROMPT -----
+[알럿 — 신뢰할 수 없는 데이터]
+```json
+{
+ "type": "alert",
+ "timestamp": "2026-11-18T18:03:37.920000+00:00",
+ "rule": {
+  "id": "100512",
+  "level": 12,
+  "description": "[Shadow API L3 악용] 10.66.0.2 GET /debug",
+  "groups": [
+   "shadow_api",
+   "shadow_api_exploit"
+  ]
+ },
+ "data": {
+  "client_ip": "10.66.0.2",
+  "method": "GET",
+  "path": "/debug",
+  "status": "200"
+ }
+}
+```
+
+[사실 — 코드가 계산한 확정 사실]
+- 응답 코드 200 = 성공(2xx): 요청이 처리돼 응답이 나갔다 — 데이터가 노출됐을 수 있다.
+- GET /debug 는 API 명세에 없는 호출이다(명세 밖) — 이 룰 계열이 울리는 전제 조건.
+- 룰 100512: level 12, MITRE T1190, 파일 0915-shadow_api_rules.
+- 후속 룰 100521 (level 14): 같은 출발지에서 60초 안에 10회 이상 쌓이면 울린다 — [Shadow API F2 대량 유출] $(srcip) 60초 안에 L3 10회 이상. 입력 안에서 이 출발지의 룰 100512 알럿은 2건으로 임계(10회) 미만이다.
+- 같은 출발지 10.66.0.2 의 알럿이 입력 안에 8건, 8초 사이 있다(룰별 {'100512': 2, '100511': 5, '100510': 1}, 서로 다른 경로 8개).
+
+[룰 정의 — id 100512 및 후속 룰]
+### [0915-shadow_api_rules::100512]
+[0915-shadow_api_rules.xml · 룰 100512 · level 12 · group shadow_api,]
+<rule id="100512" level="12">
+    <if_group>shadow_api_undocumented</if_group>
+    <id type="pcre2">^2\d\d$</id>
+    <description>[Shadow API L3 악용] $(srcip) $(protocol) $(url)</description>
+    <mitre><id>T1190</id></mitre>
+    <group>shadow_api_exploit,</group>
+  </rule>
+
+### [0915-shadow_api_rules::100521]
+[0915-shadow_api_rules.xml · 룰 100521 · level 14 · group shadow_api,]
+<rule id="100521" level="14" frequency="10" timeframe="60" ignore="60">
+    <if_matched_sid>100512</if_matched_sid>
+    <same_srcip />
+    <description>[Shadow API F2 대량 유출] $(srcip) 60초 안에 L3 10회 이상</description>
+    <mitre><id>T1119</id></mitre>
+    <group>shadow_api_mass_exfil,</group>
+  </rule>
+
+[관련 룰]
+### [0916-offspec_priority::100610]
+[0916-offspec_priority.xml · 룰 100610 · level 9 · group shadow_api,offspec_priority,]
+<rule id="100610" level="9">
+    <if_sid>100212</if_sid>
+    <field name="method" type="pcre2">^GET$</field>
+    <field name="path" type="pcre2">^/api/jsonws/*(?:\?.*)?$</field>
+    <description>[Shadow API L3 · 우선순위 낮음] $(client_ip) $(method) $(path)</description>
+    <group>shadow_api_exploit,offspec_low,offspec_exploit_triaged,</group>
+  </rule>
+
+### [0916-offspec_priority::100630]
+[0916-offspec_priority.xml · 룰 100630 · level 9 · group shadow_api,offspec_priority,]
+<rule id="100630" level="9">
+    <if_sid>100212</if_sid>
+    <field name="method" type="pcre2">^GET$</field>
+    <field name="path" type="pcre2">^/api/v2/ping/*(?:\?.*)?$</field>
+    <description>[Shadow API L3 · 우선순위 낮음] $(client_ip) $(method) $(path)</description>
+    <group>shadow_api_exploit,offspec_low,offspec_exploit_triaged,</group>
+  </rule>
+
+위 알럿을 트리아지해라.
+------------------
+
+판정: 의심
+
+1. 요약: 10.66.0.2에서 GET /debug로 요청이 보내졌으며 응답 코드가 200으로 성공적으로 처리되었다.
+2. 왜 울렸나: 룰 100512 (Shadow API L3 악용)에 의해 울렸다.
+3. 더 확인할 것: 
+   - GET /debug의 호출이 API 명세에 포함되어 있는지 확인
+   - 10.66.0.2에서 같은 경로로 추가 요청이 발생하는지 모니터링
+4. 권장 대응: 추가 확인 후, API 명세를 검토하고 필요하다면 개발팀에 알림.

@@ -1,0 +1,7 @@
+$ docker compose run --rm app rag/env_check.py
+# 2026-11-26 10:26:26  commit 262536e
+
+python 3.12.16
+ollama http://ollama:11434/api/tags
+  bge-m3:latest                  1.2 GB
+  qwen2.5:7b-instruct            4.7 GB

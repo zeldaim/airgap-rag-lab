@@ -12,11 +12,14 @@ import urllib.request
 
 
 def generate(prompt: str, system: str | None = None, base_url: str | None = None, model: str | None = None,
-            timeout: int = 180) -> str:
+            timeout: int = 180, options: dict | None = None) -> str:
     base_url = base_url or os.environ.get("OLLAMA_URL", "http://127.0.0.1:11434")
     model = model or os.environ.get("OLLAMA_MODEL", "qwen2.5:7b-instruct")
     messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
-    body = json.dumps({"model": model, "messages": messages, "stream": False}).encode()
+    payload = {"model": model, "messages": messages, "stream": False}
+    if options:  # 예: {"temperature": 0, "seed": 1} — 평가를 재현 가능하게
+        payload["options"] = options
+    body = json.dumps(payload).encode()
     req = urllib.request.Request(base_url.rstrip("/") + "/api/chat", data=body,
                                  headers={"Content-Type": "application/json; charset=utf-8"}, method="POST")
     try:

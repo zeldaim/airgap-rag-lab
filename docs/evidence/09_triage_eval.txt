@@ -1,0 +1,32 @@
+$ docker compose run --rm app rag/triage_eval.py samples/triage_eval.jsonl
+# 2026-11-26 실행(백그라운드, 약 17분)  commit 262536e(실행 시점 작업 트리)
+
+[plain] #0  tp GET /debug                     -> 의심     O  (34s)
+[facts] #0  tp GET /debug                     -> 의심     O  (22s)
+[plain] #1  tp GET /admin/reset-chef-password -> 의심     O  (39s)
+[facts] #1  tp GET /admin/reset-chef-password -> 의심     O  (51s)
+[plain] #2  tp GET /api/v1/users              -> 의심     O  (36s)
+[facts] #2  tp GET /api/v1/users              -> 의심     O  (56s)
+[plain] #3  tp GET /delivery/orders           -> 의심     O  (35s)
+[facts] #3  tp GET /delivery/orders           -> 의심     O  (42s)
+[plain] #4  tp GET /swagger.json              -> 의심     O  (40s)
+[facts] #4  tp GET /swagger.json              -> 의심     O  (51s)
+[plain] #5  tp DELETE /orders/1                  -> 의심     O  (37s)
+[facts] #5  tp DELETE /orders/1                  -> 의심     O  (44s)
+[plain] #6  tp POST /menu                      -> 의심     O  (38s)
+[facts] #6  tp POST /menu                      -> 의심     O  (48s)
+[plain] #7  tp GET /admin/stats/memory        -> 의심     O  (43s)
+[facts] #7  tp GET /admin/stats/memory        -> 의심     O  (44s)
+[plain] #8  fp GET /docs                      -> 의심     X  (33s)
+[facts] #8  fp GET /docs                      -> 보류     X  (42s)
+[plain] #9  fp GET /redoc                     -> 의심     X  (31s)
+[facts] #9  fp GET /redoc                     -> 보류     X  (45s)
+[plain] #10 fp GET /openapi.json              -> 의심     X  (47s)
+[facts] #10 fp GET /openapi.json              -> 보류     X  (56s)
+[plain] #11 fp GET /docs/oauth2-redirect      -> 의심     X  (43s)
+[facts] #11 fp GET /docs/oauth2-redirect      -> 보류     X  (57s)
+
+=== 요약 (n=12: tp 8, fp 4) ===
+plain  판정 정확도 8/12  (tp 8/8, fp 0/4) | tp 근거 언급: 명세 밖 1/8, 응답코드 의미 6/8
+facts  판정 정확도 8/12  (tp 8/8, fp 0/4) | tp 근거 언급: 명세 밖 4/8, 응답코드 의미 7/8
+코드만 판정(순환·기준선) 12/12

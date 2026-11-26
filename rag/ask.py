@@ -32,7 +32,7 @@ def main():
     ap.add_argument("-k", type=int, default=4)
     a = ap.parse_args()
     hits = search(a.question, a.k)
-    print("검색된 청크:", ", ".join(f"{h['id']}({h['distance']:.3f})" for h in hits), "\n")
+    print("검색된 청크:", ", ".join(h["id"] for h in hits), "\n")
     print(generate(build_prompt(a.question, hits), system=SYSTEM))
 
 

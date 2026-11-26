@@ -1,0 +1,7 @@
+$ docker compose run --rm app llm/verify_airgap.py
+# 2026-11-26 10:26:27  commit 262536e
+
+[로컬 LLM] 응답 받음: '2'
+[망분리] 외부 접속 시도 → 예상대로 실패: [Errno 101] Network is unreachable
+
+로컬 LLM 동작: OK · 외부 차단: OK

@@ -1,0 +1,21 @@
+$ docker compose run --rm app rag/facts_check.py
+# 2026-11-26 10:26:59  commit 262536e
+
+명세 허용 21개 (기대 21), 예외 ['/docs', '/docs/oauth2-redirect', '/openapi.json', '/redoc']
+OK  GET    /menu                -> in_spec (기대 in_spec)
+OK  GET    /menu/5              -> out_of_spec (기대 out_of_spec)
+OK  DELETE /menu/3              -> in_spec (기대 in_spec)
+OK  DELETE /orders/1            -> out_of_spec (기대 out_of_spec)
+OK  GET    /orders/12?x=1       -> in_spec (기대 in_spec)
+OK  GET    /docs                -> exception (기대 exception)
+OK  GET    /docs/               -> exception (기대 exception)
+OK  POST   /docs                -> out_of_spec (기대 out_of_spec)
+OK  GET    /debug               -> out_of_spec (기대 out_of_spec)
+OK  PUT    /users/update_role   -> in_spec (기대 in_spec)
+OK  POST   /menu                -> out_of_spec (기대 out_of_spec)
+OK  실제 알럿 15건 전부 명세 밖이어야 한다(룰이 그 전제로 울렸으므로): {'out_of_spec': 15}
+OK  룰 100510 의 후속 룰 ['100520'] (기대 ['100520'])
+OK  룰 100512 의 후속 룰 ['100521'] (기대 ['100521'])
+OK  룰 100923 의 후속 룰 [] (기대 [])
+
+전부 통과

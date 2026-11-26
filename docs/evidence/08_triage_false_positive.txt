@@ -1,0 +1,15 @@
+$ docker compose run --rm app rag/triage.py samples/triage_eval.jsonl -n 8
+# 2026-11-26 10:28:25  commit 262536e
+
+룰 정의 청크 : ['0915-shadow_api_rules::100512', '0915-shadow_api_rules::100521']
+관련 룰 청크 : ['0915-shadow_api_rules::100503', '0915-shadow_api_rules::100513']
+코드 판정 단서: 오탐 가능
+
+판정: 보류
+
+1. 요약: GET /docs 요청이 성공적으로 처리되었지만, 이는 명세 예외 목록에 포함되어 있어 정상적인 접근일 가능성이 높다.
+2. 왜 울렸나: 룰 100512 (Shadow API L3 악용)에 의해 울렸다. 응답 코드 200은 데이터 노출을 의미할 수 있다.
+3. 더 확인할 것: 
+   - 10.10.0.5에서의 다른 요청 패턴
+   - GET /docs의 실제 사용 목적
+4. 권장 대응: 추가 모니터링을 실시하고, 개발자와 협의하여 GET /docs의 사용 목적을 확인한다.

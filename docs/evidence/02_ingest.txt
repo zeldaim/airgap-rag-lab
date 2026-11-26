@@ -1,0 +1,5 @@
+$ docker compose run --rm app rag/ingest.py
+# 2026-11-26 10:26:29  commit 262536e
+
+청크 116개 (88 룰 + 5 머리설명 + 23 문서섹션)
+저장 완료: 116개, 벡터 차원 1024
