@@ -44,6 +44,8 @@ bash demo/run_demo.sh
 
 실행 증거(명령·시각·커밋과 함께 저장한 실제 출력)는 [`docs/evidence/`](docs/evidence/README.md).
 
+**GPU**: NVIDIA GPU 가 있으면 compose 가 Ollama 에 GPU 를 연결한다(`docker-compose.yml` 의 `deploy` 블록). 이 PC(RTX 5060 Laptop 8GB)에서 같은 요청의 생성 속도가 **CPU 7.5 → GPU 49.4 tok/s, 호출당 26.8초 → 4.1초**였다([`19_gpu_speed`](docs/evidence/19_gpu_speed.txt)). GPU 가 없으면 그 블록을 지우면 CPU 로 돈다. **주의: 이 문서의 LLM 평가(인젝션·ML 트리아지·룰 공장 등)는 CPU 에서 돌린 결과다 — GPU 에서는 부동소수점 차이로 출력이 달라질 수 있어 같은 수치가 나온다는 보장이 없다**(검색 평가는 GPU 임베딩에서도 같은 값이 나옴).
+
 ## 문제의식
 
 금융권·공공기관은 망분리(폐쇄망) 환경이라 외부 LLM API를 못 쓴다. 솔트룩스의 '루시아 온' 같은 제품이 이 자리를 채운다 — 로컬 LLM + 사내 문서 검색(RAG)을 외부 네트워크 호출 없이 통째로 설치하는 방식.

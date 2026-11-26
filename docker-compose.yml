@@ -9,6 +9,15 @@ services:
     image: ollama/ollama@sha256:1cabd20e1762a7a8444bf4a7110b346d923cd77ab6c97c984434140638c913ec   # ollama/ollama:latest 를 2026-11-26 에 다이제스트로 고정
     volumes: [ollama_models:/root/.ollama]
     networks: [airgap]
+    # NVIDIA GPU 를 쓴다 (호스트에 드라이버 + Docker 의 nvidia 런타임이 있어야 함). GPU 가 없는 PC 에서는 이 블록을 지운다 — 없으면 CPU 로 돈다.
+    # GPU 는 외부 네트워크가 아니라 장치 접근이라 airgap 네트워크(internal: true)와 무관하다.
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     # 포트를 호스트에 안 열었다 — airgap 네트워크 안에서만 닿는다
 
   app:

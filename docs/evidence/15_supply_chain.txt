@@ -1,11 +1,11 @@
-$ bash supply-chain/run.sh airgap-rag-lab-app:latest
-# 2026-11-26 15:00:20
+$ bash supply-chain/run.sh airgap-rag-lab-app:latest   # compose 변경(GPU) 후 재서명
+# 2026-11-26 17:23:24
 
 [SBOM] airgap-rag-lab-app:latest
 [취약점] airgap-rag-lab-app:latest
 이미지 airgap-rag-lab-app:latest
 SBOM 구성요소 179개 (CycloneDX)
-취약점 일치 235건 — 심각도 {'Critical': 2, 'High': 84, 'Medium': 79, 'Negligible': 51, 'Low': 13, 'Unknown': 6} · {'수정 없음/미확정': 215, '수정 버전 있음': 20}
+취약점 일치 236건 — 심각도 {'Critical': 2, 'High': 84, 'Medium': 79, 'Negligible': 51, 'Low': 13, 'Unknown': 7} · {'수정 없음/미확정': 214, '수정 버전 있음': 22}
   High     CVE-2025-69720       libncursesw6 6.5+20250216-2 → 수정: -
   High     CVE-2025-69720       libtinfo6 6.5+20250216-2 → 수정: -
   High     CVE-2025-69720       ncurses-base 6.5+20250216-2 → 수정: -
