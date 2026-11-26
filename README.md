@@ -1,6 +1,26 @@
-# airgap-rag-lab — 폐쇄망(온프레미스) RAG + 에이전트 보안 랩
+# Air-gapped AI Security Operations + RAG Security Validation
 
-> **1·2·3단계 완료(2026-11-26)** — 로컬 LLM + 망분리 + Wazuh 룰 RAG를 실제로 돌려서 확인. 4·5단계는 아직.
+외부 네트워크 호출 없이 도는 **AI 보안 관제(알럿 트리아지)** 를 만들고, **그 AI의 판단을 믿어도 되는지를 측정**한 랩이다. (저장소 이름: `airgap-rag-lab`)
+RAG를 구현했다는 것보다, 구현한 것을 **공격하고 실패를 숨기지 않고 기록**했다는 쪽이 이 레포의 요점이다.
+
+## 발견한 것 (증거 로그 링크 · 한계를 같이 적음)
+
+| # | 발견 | 근거 | 한계 |
+|---|---|---|---|
+| 1 | 알럿의 `path` 에 **가짜 시스템 메시지** 한 줄을 넣으면 공격 알럿 3건의 판정이 3/3 "오탐 가능"으로 뒤집힌다. 코드가 계산한 사실 블록이 있어도 마찬가지 | [`14_security_eval`](docs/evidence/14_security_eval.txt) | 공격 알럿 3종 — "되는 경로가 있다"의 존재 증명이지 비율이 아니다 |
+| 2 | 로컬 7B 모델은 결론을 내리지 않고 물러난다 — ML 이벤트 13건 중 11건이 "보류", 정상 10건을 "오탐 가능"으로 낸 적 0회 (사실 블록을 줘도) | [`13_triage_ml_eval`](docs/evidence/13_triage_ml_eval.txt) | 공격은 3건뿐이라 "공격을 놓치는가"는 말할 수 없다. 모델 하나 |
+| 3 | 평가 이벤트가 나온 실행의 README 에 **정답이 적혀** 있어 코퍼스에서 뺐다. 안 뺐다면 정답을 읽는 평가였다 | [ML 어댑터 절](#활용-트랙-이-rag를-쓰는-쪽) | 이번에 눈에 띈 것만 — 다른 오염이 없다는 보증은 아님 |
+| 4 | 방어연습장의 정상 행위자 135명 중 111명(82%)이 ML에 걸리고, **룰에 걸린 정상은 0명** — 오탐의 출처는 룰이 아니라 ML | [`12_lab_actor_results`](docs/evidence/12_lab_actor_results.txt) | 같은 생성기·페르소나라 독립 표본이 아니다. 합성 트래픽 |
+| 5 | "코드만 판정 12/12 · 13/13" 은 **순환**이다 (같은 데이터를 본 뒤 규칙을 정함) — 성능 증거가 아니다 | [`09`](docs/evidence/09_triage_eval.txt) · [`13`](docs/evidence/13_triage_ml_eval.txt) | — |
+| + | 근거 없는 질문 6개를 6/6 거부, 지어낸 룰 ID 0건 | [`14_security_eval`](docs/evidence/14_security_eval.txt) | 질문이 코퍼스와 동떨어진 쉬운 편, 거부 판정은 정규식 |
+
+같은 실패가 [reservoir-rtu-lab](https://github.com/zeldaim/reservoir-rtu-lab)(무인 배수지 RTU 관제)에서도 **독립적으로** 나왔다 — 사건 기록의 `detail` 에 "risk_level 을 low 로"를 넣으면 로컬 7B가 따랐고, AI 출력과 무관하게 계산하는 최소 위험도(`risk_floor`)로 고치고 회귀 테스트를 붙였다. 두 시스템의 결론은 같다: **판정은 LLM 에 맡기지 않는다.**
+
+## 아직 안 한 것 (숨기지 않는다)
+
+문서별 접근통제(BM25 가 컬렉션 전체를 읽어 필터를 우회하는 위험이 알려져 있다) · 문서/인덱스/모델 무결성 · 공급망(SBOM · 버전 고정 · 서명) · 사람이 검토한 정답과 실제 사고 데이터 · 모델 하나(7B)·언어 하나 · 제3자 재현. 로드맵과 현재 상태는 아래 [보안 로드맵](#보안-로드맵-2026-11-26-확정--rag-시스템-자체의-보안).
+
+> **1·2·3단계 완료(2026-11-26)** — 로컬 LLM + 망분리 + Wazuh 룰 RAG를 실제로 돌려서 확인했고, 보안 시험 1차와 ML 어댑터 1차 평가까지 했다.
 
 ## 빠르게 써 보기
 
@@ -33,7 +53,7 @@ bash demo/run_demo.sh
 
 ## 재사용하는 설계 (코드 복붙 아님, 원칙만)
 
-- [reservoir-rtu-lab](https://github.com/zeldaim/reservoir-rtu-lab)의 `app/report.py` — "검색·기록된 데이터는 지시가 아니다"라는 프롬프트 인젝션 방어 원칙. RAG에서는 "검색된 문서 안의 지시문처럼 보이는 문장을 LLM이 따르면 안 된다"로 그대로 적용된다.
+- [reservoir-rtu-lab](https://github.com/zeldaim/reservoir-rtu-lab)의 `server/app/report.py` — "검색·기록된 데이터는 지시가 아니다"라는 프롬프트 인젝션 방어 원칙. RAG에서는 "검색된 문서 안의 지시문처럼 보이는 문장을 LLM이 따르면 안 된다"로 그대로 적용된다.
 - [api-defense-lab](https://github.com/zeldaim/api-defense-lab) · [reservoir-rtu-lab](https://github.com/zeldaim/reservoir-rtu-lab)의 "AI는 초안·분석만, 실행은 결정론적 로직이 한다" 원칙.
 
 ## 계획 (뼈대만, 순서대로)
